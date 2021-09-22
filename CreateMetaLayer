@@ -1,0 +1,74 @@
+1-Create a new meta layer and add it to bblayer.conf file
+
+$ cd poky
+$ source oe-init-build-env
+# Now, build folder would your current working directory.
+
+$ bitbake-layers create-layer ../meta-tutorial
+# This command creates the meta-tutorial layer inside the poky directory. 
+
+# Add this layer into bblayer.conf file
+$ bitbake-layers add-layer ../meta-tutorial
+
+# Display all layer present in the bblayer.conf file. 
+$ bitbake-layers show-layers
+
+
+2-Create Directory For Recipe and Source Files
+
+we need to create directory hello and files at
+
+poky/meta-tutorial/recipe-example/hello
+poky/meta-tutorial/recipe-example/hello/files/
+
+3-Write the simple hello world c program
+
+Create the hello.c file at the poky/meta-tutorial/recipe-example/hello/files/hello.c
+
+#include <stdio.h>
+
+int maint()
+{
+	printf("Hello, World!!!!!!");
+	return 0;
+}
+
+
+
+4-Write the simple hello recipe file
+
+Create hello_1.0.bb recipe file at the poky/meta-tutorial/recipe-example/hello/hello_1.0.bb
+
+DESCRIPTION = "Simple helloworld application"
+LICENSE = "MIT"
+LIC_FILES_CHKSUM = "file://${COMMON_LICENSE_DIR}/MIT;md5=0835ade698e0bcf8506ecda2f7b4f302"
+
+SRC_URI = "file://hello.c"
+
+S = "${WORKDIR}"
+
+do_compile() {
+        ${CC} hello.c ${LDFLAGS} -o hello
+}
+
+do_install() {
+        install -d ${D}${bindir}
+        install -m 0755 hello ${D}${bindir}
+}
+
+
+
+
+5-Select machine configuration and Add hello package to rootsfs
+
+we have to add this machine in conf/local.conf file.
+
+#By default, this machine selection is enabled. 
+MACHINE ??= "qemux86-64" 
+
+#We need to add the hello software package to the target image 
+IMAGE_INSTALL_append = " hello"
+
+6-Build Image
+
+$bitbake core-minimal-image
